@@ -1,0 +1,5 @@
+AGENTS.md
+.gitignore
+dist/**
+*.vsix
+node_modules/**

@@ -1,0 +1,24 @@
+{
+  "name": "llm-meter",
+  "displayName": "LLM Meter",
+  "description": "Status bar meter for Ollama Cloud usage limits. Local install only, no telemetry, no auto-update.",
+  "version": "0.1.0",
+  "publisher": "local",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./src/ui.js",
+  "contributes": {
+    "commands": [
+      { "command": "llmMeter.refresh", "title": "Refresh Usage", "category": "LLM Meter" },
+      { "command": "llmMeter.setApiKey", "title": "Set API Key", "category": "LLM Meter" }
+    ]
+  },
+  "scripts": {
+    "package": "node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && npx --yes @vscode/vsce package --out dist/llm-meter.vsix --allow-missing-repository --no-rewrite-relative-links"
+  }
+}
