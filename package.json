@@ -6,7 +6,8 @@
   "publisher": "local",
   "license": "MIT",
   "engines": {
-    "vscode": "^1.93.0"
+    "vscode": "^1.93.0",
+    "node": ">=18"
   },
   "activationEvents": [
     "onStartupFinished"
@@ -19,6 +20,6 @@
     ]
   },
   "scripts": {
-    "package": "node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && npx --yes @vscode/vsce package --out dist/llm-meter.vsix --allow-missing-repository --no-rewrite-relative-links"
+    "package": "node scripts/preflight.js && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && npx --yes @vscode/vsce@2 package --out dist/llm-meter.vsix --allow-missing-repository --no-rewrite-relative-links"
   }
 }

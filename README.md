@@ -19,24 +19,27 @@ Three small files:
 The request:
 
 ```
-GET https://ollama.com/api/usage
-Authorization: <your Ollama API key>
+GET https://ollama.com/api/balance
+Authorization: Bearer <your Ollama API key>
 ```
 
 - Redirects are refused, so the key cannot be forwarded to another host.
 - Nothing is logged.
 - The key is stored in VS Code Secret Storage (OS keychain), or read from the `OLLAMA_API_KEY` environment variable.
 
-The usage endpoint is undocumented, so it may change or behave differently from what is assumed here.
+The balance endpoint is undocumented, so it may change or behave differently from what is assumed here.
 
 ## Build and install
 
-You need [Node.js](https://nodejs.org) 18 or newer.
+You need [Node.js](https://nodejs.org) 18 or newer. If the version is too old the
+build stops with a clear message instead of a stack trace. With
+[nvm](https://github.com/nvm-sh/nvm) (or nvm-windows) run `nvm install` first to
+pick up the version in `.nvmrc`.
 
 ```powershell
 git clone <this repo>
 cd llm-meter
-npm run package      # creates dist/llm-meter.vsix
+npm run package      # checks Node, then creates dist/llm-meter.vsix
 ```
 
 Then in VS Code:
