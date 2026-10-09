@@ -3,3 +3,5 @@ AGENTS.md
 dist/**
 *.vsix
 node_modules/**
+scripts/**
+.nvmrc
