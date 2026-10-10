@@ -12,7 +12,7 @@ const barText = (windows) => config.icon + ' ' + windows.map((w) => `${w.label} 
 
 const tooltip = (windows) =>
   '**Ollama Cloud**\n\n' +
-  windows.map((w) => `${w.label}: **${w.percent}%** - ${w.models.map((m) => `${m.name} (${m.requests})`).join(', ') || 'no requests'}`).join('\n\n') +
+  windows.map((w) => `${w.name}: **${w.percent}%** used`).join('\n\n') +
   `\n\nUpdated ${new Date().toLocaleTimeString()}. Click to refresh.`;
 
 function activate(context) {
