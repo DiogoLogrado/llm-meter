@@ -3,10 +3,13 @@
 A small status bar meter for Ollama Cloud usage limits:
 
 ```
-$(dashboard) 5h 43% · wk 10%
+$(hubot) 43% 2h · 88% 3d
 ```
 
-Hover for per-model details, click to refresh. Local install only: no marketplace, no telemetry, no auto-update, no dependencies.
+One status bar item showing session and weekly usage, tinted green-to-red by the
+higher of the two, with the time until each window resets (hours for the session,
+days for the week, dropping to minutes as a window closes). Hover for the details;
+the tooltip also has Refresh and a gear to set the alert percentages. Local install only: no marketplace, no telemetry, no auto-update, no dependencies.
 
 ## The whole thing
 
@@ -60,10 +63,11 @@ A `.vsix` is a zip file. Rename a copy to `.zip` and look inside before trusting
 1. Run **LLM Meter: Set API Key** from the Command Palette.
 2. The meter appears in the status bar.
 
-Refresh interval, colour thresholds and the rest are in [src/config.js](src/config.js) (edit, rebuild, reinstall). They are not VS Code settings.
+Refresh interval and the rest are in [src/config.js](src/config.js) (edit, rebuild, reinstall).
+The two alert percentages are also editable at runtime with **LLM Meter: Set Alert Percentages**.
 
 VS Code cannot tell an extension when a chat response finishes, so `refreshOnWindowFocus` is the closest to "refresh after a prompt".
 
 ## Change how it looks
 
-Edit `src/config.js` for thresholds, icon and separator, or `src/ui.js` for the status bar text and tooltip. Rebuild and reinstall afterwards.
+Edit `src/config.js` for the gradient colours and refresh behaviour, or `src/ui.js` for the status bar text and tooltip. Rebuild and reinstall afterwards.

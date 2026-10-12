@@ -10,11 +10,11 @@
 // "remaining_percent" is what is left, so the used percent is 100 - it.
 //
 // TODO(development): Ollama only for now. Other providers (Claude, DeepSeek, ...)
-// would each get their own fetch here and return the same [{ label, percent }] shape.
+// would each get their own fetch here and return the same [{ name, percent, resetsAt }] shape.
 
 const BALANCE_URL = 'https://ollama.com/api/balance';
 
-// Returns [{ label, name, percent }]; percent is used, 0-100. Throws on any failure.
+// Returns [{ name, percent, resetsAt }]; percent is used, 0-100. Throws on any failure.
 async function fetchUsage(key) {
   // redirect:'error' stops the key from being forwarded to any other host.
   const res = await fetch(BALANCE_URL, {
@@ -26,9 +26,8 @@ async function fetchUsage(key) {
 
   const { session, weekly } = (await res.json()).included ?? {};
   if (!session || !weekly) throw new Error('Unexpected balance response');
-  // label = compact for the status bar, name = readable for the tooltip.
-  const window = (label, name, w) => ({ label, name, percent: Math.round((100 - w.remaining_percent) * 10) / 10 });
-  return [window('5h', 'Session', session), window('wk', 'Weekly', weekly)];
+  const window = (name, w) => ({ name, percent: Math.round((100 - w.remaining_percent) * 10) / 10, resetsAt: w.resets_at });
+  return [window('Session', session), window('Weekly', weekly)];
 }
 
 module.exports = { fetchUsage };
