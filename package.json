@@ -15,11 +15,12 @@
   "main": "./src/ui.js",
   "contributes": {
     "commands": [
-      { "command": "llmMeter.refresh", "title": "Refresh Usage", "category": "LLM Meter" },
-      { "command": "llmMeter.setApiKey", "title": "Set API Key", "category": "LLM Meter" }
+      { "command": "llmMeter.setApiKey", "title": "Set API Key", "category": "LLM Meter" },
+      { "command": "llmMeter.setThresholds", "title": "Set Alert Percentages", "category": "LLM Meter" }
     ]
   },
   "scripts": {
-    "package": "node scripts/preflight.js && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && npx --yes @vscode/vsce@2 package --out dist/llm-meter.vsix --allow-missing-repository --no-rewrite-relative-links"
+    "package": "node scripts/preflight.js && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && npx --yes @vscode/vsce@2 package --out dist/llm-meter.vsix --allow-missing-repository --no-rewrite-relative-links",
+    "postpackage": "node -e \"console.log('\\nVSIX ready: ' + require('path').resolve('dist/llm-meter.vsix'))\""
   }
 }
