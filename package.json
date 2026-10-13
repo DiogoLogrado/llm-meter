@@ -20,7 +20,7 @@
     ]
   },
   "scripts": {
-    "package": "node scripts/preflight.js && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && npx --yes @vscode/vsce@2 package --out dist/llm-meter.vsix --allow-missing-repository --no-rewrite-relative-links",
-    "postpackage": "node -e \"console.log('\\nVSIX ready: ' + require('path').resolve('dist/llm-meter.vsix'))\""
+    "package": "npm run package:ollama",
+    "package:ollama": "node scripts/preflight.js && npx --yes @vscode/vsce@2 package --out dist/llm-meter-ollama.vsix --allow-missing-repository --no-rewrite-relative-links"
   }
 }
