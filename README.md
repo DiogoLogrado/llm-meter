@@ -42,17 +42,21 @@ pick up the version in `.nvmrc`.
 ```powershell
 git clone <this repo>
 cd llm-meter
-npm run package      # checks Node, then creates dist/llm-meter.vsix
+npm run package            # checks Node, then creates dist/llm-meter-ollama.vsix
+npm run package:ollama     # the same, spelled out per provider
 ```
+
+Providers are plain npm scripts in `package.json`; Ollama is the only one today,
+others are TBD. Adding one is a new `package:<provider>` line.
 
 Then in VS Code:
 
 1. Press `Ctrl+Shift+P` (`Cmd+Shift+P` on macOS) to open the Command Palette.
 2. Run **Extensions: Install from VSIX...**
-3. Pick `dist/llm-meter.vsix`.
+3. Pick `dist/llm-meter-ollama.vsix`.
 4. Reload the window if asked.
 
-Command line alternative: `code --install-extension dist/llm-meter.vsix`.
+Command line alternative: `code --install-extension dist/llm-meter-ollama.vsix`.
 
 To update, rebuild and install again. To remove, uninstall "LLM Meter" in the Extensions view.
 
@@ -71,3 +75,10 @@ VS Code cannot tell an extension when a chat response finishes, so `refreshOnWin
 ## Change how it looks
 
 Edit `src/config.js` for the gradient colours and refresh behaviour, or `src/ui.js` for the status bar text and tooltip. Rebuild and reinstall afterwards.
+
+## Icon and packaging
+
+The extension icon is the `icon` field in `package.json`, a 128x128 (or larger) PNG
+shipped inside the VSIX. See [images/README.md](images/README.md). Each provider
+script writes `dist/llm-meter-<provider>.vsix`; the extension id and display name
+always come from `package.json`.
