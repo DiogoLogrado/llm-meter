@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="LLM Meter">
+  <rect x="6" y="6" width="116" height="116" rx="24" fill="#1e1e1e" stroke="#3c3c3c" stroke-width="2" />
+
+  <path d="M32.89 101.11 A44 44 0 1 1 95.11 101.11" fill="none" stroke="#1e1e1e" stroke-width="9" />
+
+  <g fill="none" stroke-width="9" stroke-linecap="butt">
+    <path d="M32.08 100.29 A44 44 0 0 1 28.63 96.17" stroke="#46e075"/>
+    <path d="M27.31 94.29 A44 44 0 0 1 24.62 89.63" stroke="#53e06c"/>
+    <path d="M23.65 87.54 A44 44 0 0 1 21.81 82.50" stroke="#61e163"/>
+    <path d="M21.22 80.27 A44 44 0 0 1 20.28 74.98" stroke="#6ee15a"/>
+    <path d="M20.08 72.69 A44 44 0 0 1 20.08 67.31" stroke="#7ce151"/>
+    <path d="M20.28 65.02 A44 44 0 0 1 21.22 59.73" stroke="#89e247"/>
+    <path d="M21.81 57.50 A44 44 0 0 1 23.65 52.46" stroke="#97e23e"/>
+    <path d="M24.62 50.37 A44 44 0 0 1 27.31 45.71" stroke="#a3de3c"/>
+    <path d="M28.63 43.83 A44 44 0 0 1 32.08 39.71" stroke="#b0d93b"/>
+    <path d="M33.71 38.08 A44 44 0 0 1 37.83 34.63" stroke="#bdd53b"/>
+    <path d="M39.71 33.31 A44 44 0 0 1 44.37 30.62" stroke="#c9d03a"/>
+    <path d="M46.46 29.65 A44 44 0 0 1 51.50 27.81" stroke="#d6cb3a"/>
+    <path d="M53.73 27.22 A44 44 0 0 1 59.02 26.28" stroke="#e2c639"/>
+    <path d="M61.31 26.08 A44 44 0 0 1 66.69 26.08" stroke="#efc139"/>
+    <path d="M68.98 26.28 A44 44 0 0 1 74.27 27.22" stroke="#efb939"/>
+    <path d="M76.50 27.81 A44 44 0 0 1 81.54 29.65" stroke="#f0b139"/>
+    <path d="M83.63 30.62 A44 44 0 0 1 88.29 33.31" stroke="#f0a939"/>
+    <path d="M90.17 34.63 A44 44 0 0 1 94.29 38.08" stroke="#f1a13a"/>
+    <path d="M95.92 39.71 A44 44 0 0 1 99.37 43.83" stroke="#f1993a"/>
+    <path d="M100.69 45.71 A44 44 0 0 1 103.38 50.37" stroke="#f2913a"/>
+    <path d="M104.35 52.46 A44 44 0 0 1 106.19 57.50" stroke="#f2883a"/>
+    <path d="M106.78 59.73 A44 44 0 0 1 107.72 65.02" stroke="#f17e3c"/>
+    <path d="M107.92 67.31 A44 44 0 0 1 107.92 72.69" stroke="#f0743e"/>
+    <path d="M107.72 74.98 A44 44 0 0 1 106.78 80.27" stroke="#ef6a40"/>
+    <path d="M106.19 82.50 A44 44 0 0 1 104.35 87.54" stroke="#ee6042"/>
+    <path d="M103.38 89.63 A44 44 0 0 1 100.69 94.29" stroke="#ed5644"/>
+    <path d="M99.37 96.17 A44 44 0 0 1 95.92 100.29" stroke="#ec4c46"/>
+  </g>
+
+  <g stroke="#6b7280" stroke-width="2" stroke-linecap="round">
+    <line x1="39.96" y1="94.04" x2="44.91" y2="89.09" />
+    <line x1="30" y1="70" x2="37" y2="70" />
+    <line x1="39.96" y1="45.96" x2="44.91" y2="50.91" />
+    <line x1="64" y1="36" x2="64" y2="43" />
+    <line x1="88.04" y1="45.96" x2="83.09" y2="50.91" />
+    <line x1="98" y1="70" x2="91" y2="70" />
+    <line x1="88.04" y1="94.04" x2="83.09" y2="89.09" />
+  </g>
+
+  <path d="M93.56 57.75 L70.5 70.01 L68.59 65.39 Z" fill="#f0f6fc" />
+  <circle cx="64" cy="70" r="6.5" fill="#f0f6fc" />
+  <circle cx="64" cy="70" r="2.5" fill="#1e1e1e" />
+</svg>
+
