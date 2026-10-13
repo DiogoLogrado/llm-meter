@@ -9,17 +9,36 @@ const SECRET_NAME = 'llmMeter.ollama.apiKey';
 const WARN_KEY = 'llmMeter.warnAtPercent';
 const ERROR_KEY = 'llmMeter.errorAtPercent';
 
-const rgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-const mix = (a, b, t) => '#' + a.map((n, i) => Math.round(n + (b[i] - n) * t).toString(16).padStart(2, '0')).join('');
-const OK = rgb(config.colors.ok);
-const WARN = rgb(config.colors.warn);
-const OVER = rgb(config.colors.over);
+// "hsl(140, 75%, 58%)" -> "#...", so the bar can stay bright across the whole spectrum.
+function hsl(h, s, l) {
+  l = Math.max(0, Math.min(100, l));
+  const a = (s / 100) * Math.min(l / 100, 1 - l / 100);
+  const f = (n) => {
+    const k = (n + h / 30) % 12;
+    return Math.round(255 * (l / 100 - a * Math.max(-1, Math.min(k - 3, 9 - k, 1))));
+  };
+  return '#' + [f(0), f(8), f(4)].map((v) => v.toString(16).padStart(2, '0')).join('');
+}
 
-// Green below warnAtPercent, amber there, red at errorAtPercent.
+// Light themes need darker text to stay readable; dark themes use the stops as-is.
+const lightnessDelta = () => {
+  const kind = vscode.window.activeColorTheme.kind;
+  return kind === vscode.ColorThemeKind.Light || kind === vscode.ColorThemeKind.HighContrastLight
+    ? config.lightThemeLightnessDelta
+    : 0;
+};
+
+// Hue ramps green -> amber -> red while saturation and lightness stay pinned, so
+// every step is vivid; blends are done in hue, not RGB (RGB passes through muddy olive).
 function barColor(percent, warn, error) {
-  if (percent <= warn) return mix(OK, WARN, Math.min(percent / Math.max(warn, 1), 1));
-  if (percent <= error) return mix(WARN, OVER, (percent - warn) / Math.max(error - warn, 1));
-  return config.colors.over;
+  const [h0, s0, l0] = config.colors.ok;
+  const [h1, s1, l1] = config.colors.warn;
+  const [h2, s2, l2] = config.colors.over;
+  const d = lightnessDelta();
+  const ramp = (a, b, t) => hsl(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t + d);
+  if (percent <= warn) return ramp([h0, s0, l0], [h1, s1, l1], Math.min(percent / Math.max(warn, 1), 1));
+  if (percent <= error) return ramp([h1, s1, l1], [h2, s2, l2], (percent - warn) / Math.max(error - warn, 1));
+  return hsl(h2, s2, l2 + d);
 }
 
 // "45m", "2h" or "3d": the largest unit, stepping down as the window closes.
