@@ -1,5 +1,4 @@
-// Fails fast with a readable message when the installed Node.js is too old for
-// the build tooling, instead of a cryptic stack trace from vsce.
+// Readable message when the installed Node.js is too old for the build tooling
 
 const REQUIRED_MAJOR = 18;
 const current = process.versions.node;

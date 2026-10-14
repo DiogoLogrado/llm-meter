@@ -1,22 +1,29 @@
-// The only file that touches the network: one request, no vscode import.
-//
-//   GET https://ollama.com/api/balance
-//   Authorization: Bearer <your API key>
-//   Accept: application/json
-//
-// Response (undocumented endpoint, may change):
-//   { "included": { "session": { "remaining_percent": 75, "resets_at": "..." },
-//                   "weekly":  { "remaining_percent": 40, "resets_at": "..." } } }
-// "remaining_percent" is what is left, so the used percent is 100 - it.
-//
-// TODO(development): Ollama only for now. Other providers (Claude, DeepSeek, ...)
-// would each get their own fetch here and return the same [{ name, percent, resetsAt }] shape.
+/**
+ * The only file that touches the network, one request.
+ *
+ * Not in Ollama's public API docs; it backs ollama.com/settings/usage, so it may change.
+ *   GET https://ollama.com/api/balance
+ *   Authorization: Bearer <your API key>
+ *   Accept: application/json
+ *
+ * Returns { included: { session: { remaining_percent, resets_at },
+ *                       weekly:  { remaining_percent, resets_at } } }.
+ * remaining_percent is what is left, so used percent is 100 - it.
+ * Redirects are refused, so the key cannot be forwarded to any other host.
+ *
+ * @typedef {Object} Window
+ * @property {string} name Session or Weekly.
+ * @property {number} percent Used percent, 0-100.
+ * @property {string} resetsAt When the window resets.
+ */
 
 const BALANCE_URL = 'https://ollama.com/api/balance';
 
-// Returns [{ name, percent, resetsAt }]; percent is used, 0-100. Throws on any failure.
+/**
+ * @param {string} key Ollama API key.
+ * @returns {Promise<Window[]>} Throws on any failure.
+ */
 async function fetchUsage(key) {
-  // redirect:'error' stops the key from being forwarded to any other host.
   const res = await fetch(BALANCE_URL, {
     headers: { Accept: 'application/json', Authorization: `Bearer ${key}` },
     redirect: 'error',
@@ -26,8 +33,8 @@ async function fetchUsage(key) {
 
   const { session, weekly } = (await res.json()).included ?? {};
   if (!session || !weekly) throw new Error('Unexpected balance response');
-  const window = (name, w) => ({ name, percent: Math.round((100 - w.remaining_percent) * 10) / 10, resetsAt: w.resets_at });
-  return [window('Session', session), window('Weekly', weekly)];
+  const parseWindow = (name, w) => ({ name, percent: Math.round((100 - w.remaining_percent) * 10) / 10, resetsAt: w.resets_at });
+  return [parseWindow('Session', session), parseWindow('Weekly', weekly)];
 }
 
 module.exports = { fetchUsage };
