@@ -8,8 +8,9 @@ const ENV_VAR = 'OLLAMA_API_KEY';
 const SECRET_NAME = 'llmMeter.ollama.apiKey';
 const WARN_KEY = 'llmMeter.warnAtPercent';
 const ERROR_KEY = 'llmMeter.errorAtPercent';
+const REFRESH_KEY = 'llmMeter.refreshSeconds';
 
-// "hsl(140, 75%, 58%)" -> "#...", so the bar can stay bright across the whole spectrum.
+// HSL -> hex; HSL keeps good contrast on light and dark themes.
 function hsl(h, s, l) {
   l = Math.max(0, Math.min(100, l));
   const a = (s / 100) * Math.min(l / 100, 1 - l / 100);
@@ -28,9 +29,9 @@ const lightnessDelta = () => {
     : 0;
 };
 
-// Hue ramps green -> amber -> red while saturation and lightness stay pinned, so
-// every step is vivid; blends are done in hue, not RGB (RGB passes through muddy olive).
-function barColor(percent, warn, error) {
+// Ramps the hue between the stops (default green -> amber -> red); saturation and
+// lightness stay pinned, so every step is vivid.
+function textColor(percent, warn, error) {
   const [h0, s0, l0] = config.colors.ok;
   const [h1, s1, l1] = config.colors.warn;
   const [h2, s2, l2] = config.colors.over;
@@ -63,7 +64,7 @@ function preciseRemaining(at) {
 
 // e.g. "$(hubot) 43% 2h · 88% 3d"
 const barText = (windows) =>
-  '$(hubot) ' + windows.map((w) => `${w.percent}% ${remaining(w.resetsAt)}`.trim()).join(config.separator);
+  '$(hubot) ' + windows.map((w) => `${w.percent}% ${remaining(w.resetsAt)}`.trim()).join(' · ');
 
 // e.g. "Session: 43% used, resets in 2h15m"
 const details = (windows) =>
@@ -74,7 +75,7 @@ const details = (windows) =>
 
 function tooltip(windows) {
   const refresh = '[$(refresh) Refresh](command:llmMeter.refresh "Reload usage now")';
-  const gear = '[$(gear) Set alert percentages](command:llmMeter.setThresholds "Amber and red thresholds")';
+  const gear = '[$(gear) Set thresholds](command:llmMeter.setThresholds "Percentages where the gradient switches")';
   return [
     '### Ollama Cloud',
     '',
@@ -105,7 +106,7 @@ function activate(context) {
     const { warn, error } = thresholds();
     const worst = Math.max(...windows.map((w) => w.percent));
     bar.text = barText(windows);
-    bar.color = barColor(worst, warn, error);
+    bar.color = textColor(worst, warn, error);
     bar.tooltip = tip;
   }
 
@@ -129,7 +130,12 @@ function activate(context) {
     }
   }
 
-  const timer = config.refreshSeconds > 0 && setInterval(refresh, Math.max(config.refreshSeconds, 15) * 1000);
+  let timer = null;
+  const startTimer = (seconds) => {
+    clearInterval(timer);
+    timer = seconds > 0 ? setInterval(refresh, Math.max(seconds, 15) * 1000) : null;
+  };
+  startTimer(context.globalState.get(REFRESH_KEY, config.refreshSeconds));
 
   context.subscriptions.push(
     bar,
@@ -149,20 +155,40 @@ function activate(context) {
     }),
     vscode.commands.registerCommand('llmMeter.setThresholds', async () => {
       const { warn, error } = thresholds();
-      const ask = (title, prompt, value) =>
+      const validate = (value, minimum) => {
+        if (value.trim() === '' || !Number.isFinite(+value) || +value < 0 || +value > 100) return 'Enter a number between 0 and 100.';
+        if (minimum !== undefined && +value < minimum) return `Enter a number ${minimum} or above.`;
+        return '';
+      };
+      const ask = (title, prompt, value, minimum) =>
         vscode.window.showInputBox({
           title,
           prompt,
           value: String(value),
           ignoreFocusOut: true,
-          validateInput: (v) => (Number.isFinite(+v) && +v >= 0 && +v <= 100 ? '' : 'Enter a number between 0 and 100.'),
+          validateInput: (v) => validate(v, minimum),
         });
-      const w = await ask('Amber at percent', 'Where the status bar gradient turns amber.', warn);
+      const w = await ask('Middle stop at percent', 'Where the gradient reaches the middle stop.', warn);
       if (w === undefined) return;
-      const e = await ask('Red at percent', 'Where the status bar gradient turns red.', error);
+      const e = await ask('End stop at percent', 'Where the gradient reaches the end stop.', error, Number(w));
       if (e === undefined) return;
       await context.globalState.update(WARN_KEY, Number(w));
       await context.globalState.update(ERROR_KEY, Number(e));
+      refresh();
+    }),
+    vscode.commands.registerCommand('llmMeter.setInterval', async () => {
+      const current = context.globalState.get(REFRESH_KEY, config.refreshSeconds);
+      const value = await vscode.window.showInputBox({
+        title: 'Refresh interval in seconds',
+        prompt: 'How often to check usage. 0 turns the timer off; any other value is treated as at least 15.',
+        value: String(current),
+        ignoreFocusOut: true,
+        validateInput: (v) => (v.trim() !== '' && Number.isFinite(+v) && +v >= 0 ? '' : 'Enter 0 to turn the timer off, or a number of seconds.'),
+      });
+      if (value === undefined) return;
+      const seconds = Math.round(Number(value));
+      await context.globalState.update(REFRESH_KEY, seconds);
+      startTimer(seconds);
       refresh();
     }),
     vscode.window.onDidChangeWindowState((w) => {

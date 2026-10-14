@@ -4,7 +4,7 @@
   "description": "Status bar meter for Ollama Cloud usage limits. Local install only, no telemetry, no auto-update.",
   "version": "0.1.0",
   "publisher": "local",
-  "license": "MIT",
+  "license": "Unlicense",
   "icon": "images/icon.png",
   "engines": {
     "vscode": "^1.93.0",
@@ -17,7 +17,8 @@
   "contributes": {
     "commands": [
       { "command": "llmMeter.setApiKey", "title": "Set API Key", "category": "LLM Meter" },
-      { "command": "llmMeter.setThresholds", "title": "Set Alert Percentages", "category": "LLM Meter" }
+      { "command": "llmMeter.setThresholds", "title": "Set Threshold Percentages", "category": "LLM Meter" },
+      { "command": "llmMeter.setInterval", "title": "Set Refresh Interval", "category": "LLM Meter" }
     ]
   },
   "scripts": {
