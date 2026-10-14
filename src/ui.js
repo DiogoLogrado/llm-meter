@@ -1,8 +1,15 @@
 // Status bar text, colours, tooltip and refresh behaviour. Makes no network requests itself.
 
+const fs = require('fs');
+const path = require('path');
 const vscode = require('vscode');
-const { fetchUsage } = require('./request');
 const config = require('./config');
+
+// Each .vsix ships exactly one provider file (see the package:<provider> scripts in package.json).
+const isOllama = fs.existsSync(path.join(__dirname, 'ollama.js'));
+const provider = isOllama ? require('./ollama') : require('./claude');
+const NAME = isOllama ? 'Ollama' : 'Claude';
+const TITLE = isOllama ? 'Ollama Cloud' : 'Claude';
 
 const ENV_VAR = 'OLLAMA_API_KEY';
 const SECRET_NAME = 'llmMeter.ollama.apiKey';
@@ -77,7 +84,7 @@ function tooltip(windows) {
   const refresh = '[$(refresh) Refresh](command:llmMeter.refresh "Reload usage now")';
   const gear = '[$(gear) Set thresholds](command:llmMeter.setThresholds "Percentages where the gradient switches")';
   return [
-    '### Ollama Cloud',
+    `### ${TITLE}`,
     '',
     details(windows).join('\n\n'),
     '',
@@ -118,15 +125,19 @@ function activate(context) {
 
   async function refresh() {
     lastRun = Date.now();
-    const key = ((await context.secrets.get(SECRET_NAME)) || process.env[ENV_VAR] || '').trim();
-    if (!key) {
-      message('Set API key', `Run "LLM Meter: Set API Key" from the Command Palette, or set ${ENV_VAR} and restart VS Code.`);
-      return;
-    }
     try {
-      render(await fetchUsage(key));
+      if (!isOllama) {
+        render(provider.readClaudeUsage());
+        return;
+      }
+      const key = ((await context.secrets.get(SECRET_NAME)) || process.env[ENV_VAR] || '').trim();
+      if (!key) {
+        message('Set API key', `Run "LLM Meter: Set API Key" from the Command Palette, or set ${ENV_VAR} and restart VS Code.`);
+        return;
+      }
+      render(await provider.fetchOllamaUsage(key));
     } catch (err) {
-      message('Ollama: error', `Could not load usage: ${err.message}`);
+      message(`${NAME}: error`, `Could not load usage: ${err.message}`);
     }
   }
 
@@ -137,11 +148,24 @@ function activate(context) {
   };
   startTimer(context.globalState.get(REFRESH_KEY, config.refreshSeconds));
 
+  // Claude: re-read as soon as Claude Code rewrites the file after a reply.
+  if (!isOllama) {
+    const dir = vscode.Uri.file(path.dirname(provider.USAGE_FILE));
+    const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(dir, path.basename(provider.USAGE_FILE)));
+    watcher.onDidCreate(refresh);
+    watcher.onDidChange(refresh);
+    context.subscriptions.push(watcher);
+  }
+
   context.subscriptions.push(
     bar,
     { dispose: () => clearInterval(timer) },
     vscode.commands.registerCommand('llmMeter.refresh', refresh),
     vscode.commands.registerCommand('llmMeter.setApiKey', async () => {
+      if (!isOllama) {
+        vscode.window.showInformationMessage('Claude needs no API key. It reads what Claude Code reports; see the README.');
+        return;
+      }
       const key = await vscode.window.showInputBox({
         title: 'Ollama API key',
         prompt: 'Stored in the OS keychain via VS Code Secret Storage. Only ever sent to ollama.com.',

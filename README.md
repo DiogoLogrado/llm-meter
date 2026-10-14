@@ -6,7 +6,7 @@
 
 > **License:** The Unlicense. Public domain, so copy, change and reuse it freely.
 
-A small status bar meter for Ollama Cloud usage limits:
+A small status bar meter for Ollama Cloud or Claude (Pro/Max subscription) usage limits, one `.vsix` per provider:
 
 ```
 🤖 43% 2h · 88% 3d
@@ -17,13 +17,14 @@ higher of the two, with the time until each window resets. You can hover for the
 
 ## Files
 
-Three main files:
+Each `.vsix` ships three files, and only one provider file:
 
-- [src/request.js](src/request.js): the network request, and nothing else.
+- [src/ollama.js](src/ollama.js) (Ollama `.vsix` only): the one network request, and nothing else.
+- [src/claude.js](src/claude.js) (Claude `.vsix` only): reads one local file. No network request at all.
 - [src/ui.js](src/ui.js): the status bar text, colours, tooltip and refresh behaviour.
 - [src/config.js](src/config.js): the numbers and switches you might change.
 
-The request:
+### Ollama
 
 ```
 GET https://ollama.com/api/balance
@@ -36,6 +37,46 @@ Authorization: Bearer <your Ollama API key>
 
 The balance endpoint is undocumented, so it may change or behave differently from what is assumed here. If it stops working, please open an issue.
 
+### Claude
+
+The Claude meter never asks for a key, never reads Claude Code's login, and makes no requests.
+Claude Code already gets your usage from Anthropic with every reply and hands it to its
+[status line](https://code.claude.com/docs/en/statusline) command. A one-line status line saves just
+that part to `~/.claude/llm-meter-usage.json`, and the extension reads that file:
+
+```json
+{ "five_hour": { "used_percentage": 23.5, "resets_at": 1738425600 },
+  "seven_day": { "used_percentage": 41.2, "resets_at": 1738857600 } }
+```
+
+Add this to `~/.claude/settings.json` (it needs `node` on your PATH):
+
+```json
+"statusLine": {
+  "type": "command",
+  "command": "node -e \"let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const r=JSON.parse(s).rate_limits;if(r)require('fs').writeFileSync(require('os').homedir()+'/.claude/llm-meter-usage.json',JSON.stringify(r))})\""
+}
+```
+
+- It replaces any status line you already have, and prints nothing, so Claude Code's status line stays empty.
+- The meter updates right after each Claude Code reply. Use on claude.ai or the Claude app shows up after your next Claude Code reply.
+- A window that has passed its reset time shows 0%.
+- Usage numbers only exist for Pro and Max subscriptions, and only after the first reply in a session.
+
+> **Status: parked.** Tested on Windows on 2026-10-15 with Claude Code 2.1.296. It works when Claude
+> Code runs in a terminal, but the Claude Code VS Code panel does not run status line commands, so
+> panel users get no updates. The panel already has its own usage meter (click it in the Claude Code
+> panel), which covers the same need. Other routes checked and rejected:
+>
+> - `GET https://api.anthropic.com/api/oauth/usage` with Claude Code's OAuth token from
+>   `~/.claude/.credentials.json`: works, but Anthropic's
+>   [terms](https://code.claude.com/docs/en/legal-and-compliance) reserve subscription tokens for
+>   Claude Code and its own apps, and it answers 429 when polled often.
+> - `claude.ai/api/organizations/{id}/usage` with the browser `sessionKey` cookie: same terms problem.
+> - `cachedUsageUtilization` in `~/.claude.json`: real numbers, but written about once per session
+>   start, not after replies or when the panel meter is opened, and it is an internal key.
+> - Hooks, OpenTelemetry metrics and session transcripts: none carry the usage percentages.
+
 ## Build and install
 
 You need [Node.js](https://nodejs.org) 18 or newer. If the version is too old the
@@ -46,18 +87,20 @@ pick up the version in `.nvmrc`.
 ```powershell
 git clone <this repo>
 cd llm-meter
-npm run package            # checks Node, then creates dist/llm-meter-ollama.vsix
-npm run package:ollama     # the same, spelled out per provider
+npm run package:ollama     # checks Node, then creates dist/llm-meter-ollama.vsix
+npm run package:claude     # the same for dist/llm-meter-claude.vsix
+npm run package            # same as package:ollama
 ```
 
-Providers are plain npm scripts in `package.json`; Ollama is the only one today.
-Adding one in the future (Claude) is a new `package:<provider>` line.
+Providers are plain npm scripts in `package.json`. Each one leaves the other provider's file out
+through its own `.vscodeignore-<provider>`. Both install as the same "LLM Meter" extension, so
+installing one replaces the other.
 
 Then in VS Code:
 
 1. Press `Ctrl+Shift+P` (`Cmd+Shift+P` on macOS) to open the Command Palette.
 2. Run **Extensions: Install from VSIX...**
-3. Pick `dist/llm-meter-ollama.vsix`.
+3. Pick `dist/llm-meter-ollama.vsix` or `dist/llm-meter-claude.vsix`.
 4. Reload the window if asked.
 
 Command line alternative: `code --install-extension dist/llm-meter-ollama.vsix`.
@@ -69,7 +112,8 @@ A `.vsix` is just a zip file, so you can rename a copy to `.zip` and look inside
 
 ## Use
 
-1. Run **LLM Meter: Set API Key** from the Command Palette.
+1. Ollama: run **LLM Meter: Set API Key** from the Command Palette.
+   Claude: add the status line above, then send Claude Code a message.
 2. The meter appears in the status bar.
 
 **LLM Meter: Set Refresh Interval** changes how often usage is checked (0 turns the timer off).

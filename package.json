@@ -1,8 +1,8 @@
 {
   "name": "llm-meter",
   "displayName": "LLM Meter",
-  "description": "Status bar meter for Ollama Cloud usage limits. Local install only, no telemetry, no auto-update.",
-  "version": "0.1.0",
+  "description": "Status bar meter for Ollama Cloud or Claude subscription usage limits. Local install only, no telemetry, no auto-update.",
+  "version": "0.2.0",
   "publisher": "local",
   "license": "Unlicense",
   "icon": "images/icon.png",
@@ -23,6 +23,7 @@
   },
   "scripts": {
     "package": "npm run package:ollama",
-    "package:ollama": "node scripts/preflight.js && npx --yes @vscode/vsce@2 package --out dist/llm-meter-ollama.vsix --allow-missing-repository --no-rewrite-relative-links"
+    "package:ollama": "node scripts/preflight.js && npx --yes @vscode/vsce@2 package --ignoreFile .vscodeignore-ollama --out dist/llm-meter-ollama.vsix --allow-missing-repository --no-rewrite-relative-links",
+    "package:claude": "node scripts/preflight.js && npx --yes @vscode/vsce@2 package --ignoreFile .vscodeignore-claude --out dist/llm-meter-claude.vsix --allow-missing-repository --no-rewrite-relative-links"
   }
 }

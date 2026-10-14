@@ -1,0 +1,9 @@
+AGENTS.md
+.gitignore
+dist/**
+*.vsix
+node_modules/**
+scripts/**
+.nvmrc
+src/claude.js
+.vscodeignore-*

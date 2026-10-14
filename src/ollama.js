@@ -1,5 +1,5 @@
 /**
- * The only file that touches the network, one request.
+ * Ollama Cloud: the only network request in the Ollama .vsix.
  *
  * Not in Ollama's public API docs; it backs ollama.com/settings/usage, so it may change.
  *   GET https://ollama.com/api/balance
@@ -23,7 +23,7 @@ const BALANCE_URL = 'https://ollama.com/api/balance';
  * @param {string} key Ollama API key.
  * @returns {Promise<Window[]>} Throws on any failure.
  */
-async function fetchUsage(key) {
+async function fetchOllamaUsage(key) {
   const res = await fetch(BALANCE_URL, {
     headers: { Accept: 'application/json', Authorization: `Bearer ${key}` },
     redirect: 'error',
@@ -37,4 +37,4 @@ async function fetchUsage(key) {
   return [parseWindow('Session', session), parseWindow('Weekly', weekly)];
 }
 
-module.exports = { fetchUsage };
+module.exports = { fetchOllamaUsage };
