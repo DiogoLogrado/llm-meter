@@ -8,7 +8,7 @@ if (major < REQUIRED_MAJOR) {
   const line = '-'.repeat(60);
   console.error('');
   console.error(line);
-  console.error('  llm-meter: unsupported Node.js version');
+  console.error('  ollama-cloud-meter: unsupported Node.js version');
   console.error(line);
   console.error('  required : Node.js >= ' + REQUIRED_MAJOR);
   console.error('  current  : Node.js ' + current);

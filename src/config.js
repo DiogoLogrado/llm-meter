@@ -3,9 +3,9 @@
  * The two thresholds and the refresh interval are changed at runtime instead, from the Command Palette.
  *
  * @typedef {Object} Config
- * @property {number} warnAtPercent Used percent where the gradient reaches colors.warn (default 80). Also editable at runtime with "LLM Meter: Set Threshold Percentages".
+ * @property {number} warnAtPercent Used percent where the gradient reaches colors.warn (default 80). Also editable at runtime with "Ollama Cloud Meter: Set Threshold Percentages".
  * @property {number} errorAtPercent Used percent where the gradient reaches colors.over (default 95) and stays there.
- * @property {number} refreshSeconds Seconds between polls; 0 = no timer (default 60). Also editable at runtime with "LLM Meter: Set Refresh Interval".
+ * @property {number} refreshSeconds Seconds between polls; 0 = no timer (default 60). Also editable at runtime with "Ollama Cloud Meter: Set Refresh Interval".
  * @property {boolean} refreshOnWindowFocus Also refresh when VS Code regains focus (default true).
  * @property {[number, number, number]} colors.ok [hue, saturation, lightness] where the gradient starts (default green).
  * @property {[number, number, number]} colors.warn Middle stop (default amber).

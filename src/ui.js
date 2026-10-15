@@ -5,10 +5,10 @@ const { fetchUsage } = require('./request');
 const config = require('./config');
 
 const ENV_VAR = 'OLLAMA_API_KEY';
-const SECRET_NAME = 'llmMeter.ollama.apiKey';
-const WARN_KEY = 'llmMeter.warnAtPercent';
-const ERROR_KEY = 'llmMeter.errorAtPercent';
-const REFRESH_KEY = 'llmMeter.refreshSeconds';
+const SECRET_NAME = 'ollamaCloudMeter.ollama.apiKey';
+const WARN_KEY = 'ollamaCloudMeter.warnAtPercent';
+const ERROR_KEY = 'ollamaCloudMeter.errorAtPercent';
+const REFRESH_KEY = 'ollamaCloudMeter.refreshSeconds';
 
 // HSL -> hex; HSL keeps good contrast on light and dark themes.
 function hsl(h, s, l) {
@@ -74,8 +74,8 @@ const details = (windows) =>
   });
 
 function tooltip(windows) {
-  const refresh = '[$(refresh) Refresh](command:llmMeter.refresh "Reload usage now")';
-  const gear = '[$(gear) Set thresholds](command:llmMeter.setThresholds "Percentages where the gradient switches")';
+  const refresh = '[$(refresh) Refresh](command:ollamaCloudMeter.refresh "Reload usage now")';
+  const gear = '[$(gear) Set thresholds](command:ollamaCloudMeter.setThresholds "Percentages where the gradient switches")';
   return [
     '### Ollama Cloud',
     '',
@@ -120,7 +120,7 @@ function activate(context) {
     lastRun = Date.now();
     const key = ((await context.secrets.get(SECRET_NAME)) || process.env[ENV_VAR] || '').trim();
     if (!key) {
-      message('Set API key', `Run "LLM Meter: Set API Key" from the Command Palette, or set ${ENV_VAR} and restart VS Code.`);
+      message('Set API key', `Run "Ollama Cloud Meter: Set API Key" from the Command Palette, or set ${ENV_VAR} and restart VS Code.`);
       return;
     }
     try {
@@ -140,8 +140,8 @@ function activate(context) {
   context.subscriptions.push(
     bar,
     { dispose: () => clearInterval(timer) },
-    vscode.commands.registerCommand('llmMeter.refresh', refresh),
-    vscode.commands.registerCommand('llmMeter.setApiKey', async () => {
+    vscode.commands.registerCommand('ollamaCloudMeter.refresh', refresh),
+    vscode.commands.registerCommand('ollamaCloudMeter.setApiKey', async () => {
       const key = await vscode.window.showInputBox({
         title: 'Ollama API key',
         prompt: 'Stored in the OS keychain via VS Code Secret Storage. Only ever sent to ollama.com.',
@@ -153,7 +153,7 @@ function activate(context) {
         refresh();
       }
     }),
-    vscode.commands.registerCommand('llmMeter.setThresholds', async () => {
+    vscode.commands.registerCommand('ollamaCloudMeter.setThresholds', async () => {
       const { warn, error } = thresholds();
       const validate = (value, minimum) => {
         if (value.trim() === '' || !Number.isFinite(+value) || +value < 0 || +value > 100) return 'Enter a number between 0 and 100.';
@@ -176,7 +176,7 @@ function activate(context) {
       await context.globalState.update(ERROR_KEY, Number(e));
       refresh();
     }),
-    vscode.commands.registerCommand('llmMeter.setInterval', async () => {
+    vscode.commands.registerCommand('ollamaCloudMeter.setInterval', async () => {
       const current = context.globalState.get(REFRESH_KEY, config.refreshSeconds);
       const value = await vscode.window.showInputBox({
         title: 'Refresh interval in seconds',
