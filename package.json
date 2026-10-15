@@ -5,6 +5,10 @@
   "version": "0.1.0",
   "publisher": "local",
   "license": "Unlicense",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DiogoLogrado/llm-meter"
+  },
   "icon": "images/icon.png",
   "engines": {
     "vscode": "^1.93.0",
