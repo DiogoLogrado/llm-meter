@@ -1,15 +1,33 @@
 {
-  "name": "llm-meter",
-  "displayName": "LLM Meter",
-  "description": "Status bar meter for Ollama Cloud usage limits. Local install only, no telemetry, no auto-update.",
-  "version": "0.1.0",
-  "publisher": "local",
+  "name": "ollama-cloud-meter",
+  "displayName": "Ollama Cloud Meter",
+  "description": "Unofficial status bar meter for Ollama Cloud session and weekly usage limits. One request, no telemetry, readable source.",
+  "version": "0.2.0",
+  "publisher": "DiogoLogrado",
   "license": "Unlicense",
   "repository": {
     "type": "git",
-    "url": "https://github.com/DiogoLogrado/llm-meter"
+    "url": "https://github.com/DiogoLogrado/ollama-cloud-meter"
   },
+  "bugs": {
+    "url": "https://github.com/DiogoLogrado/ollama-cloud-meter/issues"
+  },
+  "homepage": "https://github.com/DiogoLogrado/ollama-cloud-meter#readme",
   "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "ollama",
+    "ollama cloud",
+    "usage",
+    "quota",
+    "status bar"
+  ],
   "engines": {
     "vscode": "^1.93.0",
     "node": ">=18"
@@ -20,13 +38,12 @@
   "main": "./src/ui.js",
   "contributes": {
     "commands": [
-      { "command": "llmMeter.setApiKey", "title": "Set API Key", "category": "LLM Meter" },
-      { "command": "llmMeter.setThresholds", "title": "Set Threshold Percentages", "category": "LLM Meter" },
-      { "command": "llmMeter.setInterval", "title": "Set Refresh Interval", "category": "LLM Meter" }
+      { "command": "ollamaCloudMeter.setApiKey", "title": "Set API Key", "category": "Ollama Cloud Meter" },
+      { "command": "ollamaCloudMeter.setThresholds", "title": "Set Threshold Percentages", "category": "Ollama Cloud Meter" },
+      { "command": "ollamaCloudMeter.setInterval", "title": "Set Refresh Interval", "category": "Ollama Cloud Meter" }
     ]
   },
   "scripts": {
-    "package": "npm run package:ollama",
-    "package:ollama": "node scripts/preflight.js && npx --yes @vscode/vsce@2 package --out dist/llm-meter-ollama.vsix --allow-missing-repository --no-rewrite-relative-links"
+    "package": "node scripts/preflight.js && npx --yes @vscode/vsce@2 package --out dist/ollama-cloud-meter.vsix"
   }
 }

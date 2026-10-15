@@ -5,3 +5,5 @@ dist/**
 node_modules/**
 scripts/**
 .nvmrc
+images/banner-*.png
+images/icon.svg
