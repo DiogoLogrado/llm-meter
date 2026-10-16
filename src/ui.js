@@ -42,18 +42,8 @@ function textColor(percent, warn, error) {
   return hsl(h2, s2, l2 + d);
 }
 
-// "45m", "2h" or "3d": the largest unit, stepping down as the window closes.
+// "45m", "2h15m" or "6d3h": the two largest units, for the status bar and tooltip.
 function remaining(at) {
-  const ms = (typeof at === 'number' ? at : Date.parse(at)) - Date.now();
-  if (!Number.isFinite(ms) || ms <= 0) return '';
-  const min = Math.floor(ms / 60000);
-  if (min < 60) return `${min}m`;
-  if (min < 1440) return `${Math.floor(min / 60)}h`;
-  return `${Math.floor(min / 1440)}d`;
-}
-
-// "2h15m" or "6d3h": full detail for the tooltip.
-function preciseRemaining(at) {
   const ms = (typeof at === 'number' ? at : Date.parse(at)) - Date.now();
   if (!Number.isFinite(ms) || ms <= 0) return '';
   const min = Math.floor(ms / 60000);
@@ -62,14 +52,14 @@ function preciseRemaining(at) {
   return `${Math.floor(min / 1440)}d${Math.floor((min % 1440) / 60)}h`;
 }
 
-// e.g. "$(hubot) 43% 2h · 88% 3d"
+// e.g. "$(hubot) 43% 1h50m · 88% 3d4h"
 const barText = (windows) =>
   '$(hubot) ' + windows.map((w) => `${w.percent}% ${remaining(w.resetsAt)}`.trim()).join(' · ');
 
 // e.g. "Session: 43% used, resets in 2h15m"
 const details = (windows) =>
   windows.map((w) => {
-    const left = preciseRemaining(w.resetsAt);
+    const left = remaining(w.resetsAt);
     return `${w.name}: ${w.percent}% used${left ? `, resets in ${left}` : ''}`;
   });
 
@@ -107,12 +97,16 @@ function activate(context) {
     const worst = Math.max(...windows.map((w) => w.percent));
     bar.text = barText(windows);
     bar.color = textColor(worst, warn, error);
+    bar.backgroundColor = undefined;
+    bar.command = undefined;
     bar.tooltip = tip;
   }
 
   function message(text, tip) {
     bar.text = text;
     bar.color = undefined;
+    bar.backgroundColor = undefined;
+    bar.command = undefined;
     bar.tooltip = new vscode.MarkdownString(tip, true);
   }
 
@@ -120,7 +114,10 @@ function activate(context) {
     lastRun = Date.now();
     const key = ((await context.secrets.get(SECRET_NAME)) || process.env[ENV_VAR] || '').trim();
     if (!key) {
-      message('Set API key', `Run "Ollama Cloud Meter: Set API Key" from the Command Palette, or set ${ENV_VAR} and restart VS Code.`);
+      message('$(key) Set Ollama API key', `Click to enter your Ollama API key, or set ${ENV_VAR} and restart VS Code.`);
+      // Red background so a fresh install is noticed; clicking opens the key prompt.
+      bar.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+      bar.command = 'ollamaCloudMeter.setApiKey';
       return;
     }
     try {

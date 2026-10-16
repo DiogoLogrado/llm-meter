@@ -2,7 +2,7 @@
   "name": "ollama-cloud-meter",
   "displayName": "Ollama Cloud Meter",
   "description": "Unofficial status bar meter for Ollama Cloud session and weekly usage limits. One request, no telemetry, readable source.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "DiogoLogrado",
   "license": "Unlicense",
   "repository": {

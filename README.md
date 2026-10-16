@@ -24,7 +24,7 @@
 A small status bar meter for Ollama Cloud usage limits:
 
 ```
-🤖 43% 2h · 88% 3d
+🤖 43% 1h50m · 88% 3d4h
 ```
 
 One status bar item showing session and weekly usage, tinted by a colour ramp driven by the
