@@ -5,6 +5,7 @@
   </picture>
 </p>
 <p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=DiogoLogrado.ollama-cloud-meter"><img src="https://img.shields.io/badge/VS%20Marketplace-Ollama%20Cloud%20Meter-007ACC" alt="VS Marketplace"></a>
   <img src="https://img.shields.io/github/package-json/v/DiogoLogrado/ollama-cloud-meter" alt="version">
   <img src="https://img.shields.io/badge/license-Unlicense-blue" alt="license">
   <img src="https://img.shields.io/badge/VS%20Code-%5E1.93.0-007ACC" alt="VS Code">
