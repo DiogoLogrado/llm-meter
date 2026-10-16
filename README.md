@@ -28,7 +28,7 @@ A small status bar meter for Ollama Cloud usage limits:
 ```
 
 One status bar item showing session and weekly usage, tinted by a colour ramp driven by the
-higher of the two, with the time until each window resets. You can hover for the details and the tooltip also has Refresh button, and a "Gear" button to set the thresholds. No telemetry, no dependencies, one network request.
+higher of the two, with the time until each window resets. Hover it for a table with usage bars and reset times, with buttons on top to refresh and change the settings. No telemetry, no dependencies, one network request.
 
 ## Files
 
@@ -92,9 +92,15 @@ To remove it, uninstall "Ollama Cloud Meter" from the Extensions view.
 
 ## Use
 
-1. Run **Ollama Cloud Meter: Set API Key** from the Command Palette.
-2. The meter appears in the status bar.
+1. Get an API key: sign in at [ollama.com](https://ollama.com), open
+   [Settings → Keys](https://ollama.com/settings/keys), click **Add API Key**, give it a
+   name and copy the key. It is shown only once.
+2. Click the red **Set Ollama API key** item in the status bar (or run
+   **Ollama Cloud Meter: Set API Key** from the Command Palette) and paste the key.
+3. The meter appears in the status bar. Hover it for the details.
 
+The buttons at the top of the tooltip refresh, set the thresholds, set the refresh interval
+and replace the API key. They are also in the Command Palette:
 **Ollama Cloud Meter: Set Refresh Interval** changes how often usage is checked (0 turns the timer off).
 **Ollama Cloud Meter: Set Threshold Percentages** changes the two thresholds.
 Everything else lives in [src/config.js](src/config.js).
