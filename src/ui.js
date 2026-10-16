@@ -42,18 +42,8 @@ function textColor(percent, warn, error) {
   return hsl(h2, s2, l2 + d);
 }
 
-// "45m", "2h" or "3d": the largest unit, stepping down as the window closes.
+// "45m", "2h15m" or "6d3h": the two largest units, for the status bar and tooltip.
 function remaining(at) {
-  const ms = (typeof at === 'number' ? at : Date.parse(at)) - Date.now();
-  if (!Number.isFinite(ms) || ms <= 0) return '';
-  const min = Math.floor(ms / 60000);
-  if (min < 60) return `${min}m`;
-  if (min < 1440) return `${Math.floor(min / 60)}h`;
-  return `${Math.floor(min / 1440)}d`;
-}
-
-// "2h15m" or "6d3h": full detail for the tooltip.
-function preciseRemaining(at) {
   const ms = (typeof at === 'number' ? at : Date.parse(at)) - Date.now();
   if (!Number.isFinite(ms) || ms <= 0) return '';
   const min = Math.floor(ms / 60000);
@@ -62,30 +52,51 @@ function preciseRemaining(at) {
   return `${Math.floor(min / 1440)}d${Math.floor((min % 1440) / 60)}h`;
 }
 
-// e.g. "$(hubot) 43% 2h · 88% 3d"
+// e.g. "$(hubot) 43% 1h50m · 88% 3d4h"
 const barText = (windows) =>
   '$(hubot) ' + windows.map((w) => `${w.percent}% ${remaining(w.resetsAt)}`.trim()).join(' · ');
 
-// e.g. "Session: 43% used, resets in 2h15m"
-const details = (windows) =>
-  windows.map((w) => {
-    const left = preciseRemaining(w.resetsAt);
-    return `${w.name}: ${w.percent}% used${left ? `, resets in ${left}` : ''}`;
-  });
+// e.g. "▰▰▰▰▰▰▰▰▱▱▱▱▱▱▱▱▱▱▱▱" for 40%: one cell per 100 / tooltipBarCells percent.
+function meter(percent) {
+  const { tooltipBarCells: cells, tooltipBarChars: [on, off] } = config;
+  const full = Math.round((Math.max(0, Math.min(100, percent)) / 100) * cells);
+  return on.repeat(full) + off.repeat(cells - full);
+}
+
+// Local clock time of the reset, same format in every language: "15:00" today, "Mon 00:00" further out.
+function clock(at) {
+  const d = new Date(typeof at === 'number' ? at : Date.parse(at));
+  if (!Number.isFinite(d.getTime())) return '';
+  const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  const day = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()];
+  return d.toDateString() === new Date().toDateString() ? time : `${day} ${time}`;
+}
+
+// e.g. "| **Session** | `████████░░░░` | 43% | 1h50m · 15:00 |"
+const row = (w) => {
+  const left = remaining(w.resetsAt);
+  return `| **${w.name}** | \`${meter(w.percent)}\` | ${w.percent}% | ${left ? `${left} · ${clock(w.resetsAt)}` : ''} |`;
+};
 
 function tooltip(windows) {
-  const refresh = '[$(refresh) Refresh](command:ollamaCloudMeter.refresh "Reload usage now")';
-  const gear = '[$(gear) Set thresholds](command:ollamaCloudMeter.setThresholds "Percentages where the gradient switches")';
+  const buttons = [
+    '[$(refresh) Refresh](command:ollamaCloudMeter.refresh "Reload usage now")',
+    '[$(gear) Thresholds](command:ollamaCloudMeter.setThresholds "Percentages where the gradient switches")',
+    '[$(clock) Interval](command:ollamaCloudMeter.setInterval "How often usage is checked")',
+    '[$(key) API key](command:ollamaCloudMeter.setApiKey "Replace the stored Ollama API key")',
+  ];
   return [
     '### Ollama Cloud',
     '',
-    details(windows).join('\n\n'),
+    buttons.join(' · '),
     '',
     '---',
     '',
-    `${refresh} · ${gear}`,
+    '| | Used | | Resets in |',
+    '|---|---|--:|---|',
+    ...windows.map(row),
     '',
-    `Updated ${new Date().toLocaleTimeString()}`,
+    `Updated ${clock(Date.now())}`,
   ].join('\n');
 }
 
@@ -107,12 +118,16 @@ function activate(context) {
     const worst = Math.max(...windows.map((w) => w.percent));
     bar.text = barText(windows);
     bar.color = textColor(worst, warn, error);
+    bar.backgroundColor = undefined;
+    bar.command = undefined;
     bar.tooltip = tip;
   }
 
   function message(text, tip) {
     bar.text = text;
     bar.color = undefined;
+    bar.backgroundColor = undefined;
+    bar.command = undefined;
     bar.tooltip = new vscode.MarkdownString(tip, true);
   }
 
@@ -120,7 +135,10 @@ function activate(context) {
     lastRun = Date.now();
     const key = ((await context.secrets.get(SECRET_NAME)) || process.env[ENV_VAR] || '').trim();
     if (!key) {
-      message('Set API key', `Run "Ollama Cloud Meter: Set API Key" from the Command Palette, or set ${ENV_VAR} and restart VS Code.`);
+      message('$(key) Set Ollama API key', `Click to enter your Ollama API key, or set ${ENV_VAR} and restart VS Code.`);
+      // Red background so a fresh install is noticed; clicking opens the key prompt.
+      bar.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+      bar.command = 'ollamaCloudMeter.setApiKey';
       return;
     }
     try {

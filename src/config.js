@@ -11,6 +11,8 @@
  * @property {[number, number, number]} colors.warn Middle stop (default amber).
  * @property {[number, number, number]} colors.over End stop (default red).
  * @property {number} lightThemeLightnessDelta Added to lightness on light themes; negative darkens (default -24).
+ * @property {number} tooltipBarCells Width of the tooltip usage bars in characters; 20 means one per 5% (default 20).
+ * @property {[string, string]} tooltipBarChars [used, unused] characters of the tooltip bars (default ['▰', '▱']; ['●', '○'] for circles).
  */
 
 /** @type {Config} */
@@ -21,4 +23,6 @@ module.exports = {
   refreshOnWindowFocus: true,
   colors: { ok: [140, 75, 58], warn: [45, 85, 58], over: [0, 80, 60] },
   lightThemeLightnessDelta: -24,
+  tooltipBarCells: 20,
+  tooltipBarChars: ['▰', '▱'],
 };
